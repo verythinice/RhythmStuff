@@ -7,6 +7,8 @@ public class TogetherButtonScript : MonoBehaviour {
     private float greenTime;
     private float totalGreenTime = .1f;
 
+    private float previousBeat;
+    private float currentBeat;
     private float nextBeat;
     private float bpm = 120.0f;
     private float timePerBeat;
@@ -21,9 +23,11 @@ public class TogetherButtonScript : MonoBehaviour {
         colorScript = GetComponent<ChangeColorScript>();
         greenTime = 0;
         audioSource = GameObject.Find("AudioSource").GetComponent<AudioSource>();
-        nextBeat = 0;
+        previousBeat = 0;
+        currentBeat = 0;
         timePerBeat = 60 / (bpm);
         clipLength = audioSource.clip.length;
+        nextBeat = currentBeat + timePerBeat;
     }
 
     // Update is called once per frame
@@ -60,7 +64,9 @@ public class TogetherButtonScript : MonoBehaviour {
     private void checkBeat()
     {
         if (audioSource.timeSamples >= (nextBeat) * 44100) 
-        { 
+        {
+            previousBeat = currentBeat;
+            currentBeat = nextBeat;
             nextBeat += timePerBeat;
             if (nextBeat >= clipLength)
             {
@@ -71,9 +77,17 @@ public class TogetherButtonScript : MonoBehaviour {
 
     private void checkClick()
     {
-        if (audioSource.timeSamples >= (nextBeat - inputWindow + inputDelay) * 44100 && audioSource.timeSamples <= (nextBeat + inputWindow + inputDelay) * 44100)
+        print((audioSource.timeSamples - ((previousBeat + inputDelay) * 44100))+" "+ (audioSource.timeSamples - ((currentBeat + inputDelay) * 44100))+" "+ (audioSource.timeSamples - ((nextBeat + inputDelay) * 44100))+" "+check3Beats());
+        if (check3Beats())
         {
             colorScript.setSpriteGreen();
         }
+    }
+
+    private bool check3Beats()
+    {
+        return ((Mathf.Abs(audioSource.timeSamples-((nextBeat + inputDelay) * 44100)) <= (inputWindow*44100))
+            || (Mathf.Abs(audioSource.timeSamples - ((currentBeat + inputDelay) * 44100)) <= (inputWindow*44100))
+            || (Mathf.Abs(audioSource.timeSamples - ((previousBeat + inputDelay) * 44100)) <= (inputWindow*44100)));
     }
 }

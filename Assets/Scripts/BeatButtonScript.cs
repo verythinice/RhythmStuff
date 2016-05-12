@@ -11,6 +11,7 @@ public class BeatButtonScript : MonoBehaviour {
     private float bpm = 120.0f;
     private float timePerBeat;
     private float clipLength;
+    public float delay = 0;
 
     // Use this for initialization
     void Start()
@@ -50,7 +51,7 @@ public class BeatButtonScript : MonoBehaviour {
 
     private void checkBeat()
     {
-        if (audioSource.timeSamples >= nextBeat * 44100)
+        if (audioSource.timeSamples >= (nextBeat + delay) * 44100)
         {
             colorScript.setSpriteGreen();
             nextBeat += timePerBeat;
